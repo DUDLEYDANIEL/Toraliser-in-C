@@ -1,5 +1,3 @@
-/* Toralizer */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -8,56 +6,31 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-
-/*
-
-		+----+----+----+----+----+----+----+----+----+----+....+----+
-		| VN | CD | DSTPORT |      DSTIP        | USERID       |NULL|
-		+----+----+----+----+----+----+----+----+----+----+....+----+
- bytes     1    1      2              4           variable       1
-
-
-*/
-
-//Sock protocal is used for the TCP proxy connection 
-#define PROXY      "127.0.0.1"
-#define PROXYPORT   9080
+#define PROXY "127.0.0.1"
+#define PROXYPORT 9050
+#define reqsize sizeof(struct proxy_request)
+#define ressize sizeof(struct proxy_response)
+#define USERNAME "toraliz"
 
 typedef unsigned char int8;
-typedef unsigned char int16;
-typedef unsigned char int32;
+typedef unsigned int  int16;
+typedef unsigned int  int32;
 
 struct proxy_request {
-    int8 vn;
-    int8 cd;
-    int16 dstport;
-    int32 dstip;
-    unsigned char userid[8];
+    int8 vn;            // SOCKS protocol version
+    int8 cd;            // Command code (1 = CONNECT)
+    int16 dstport;      // Destination port (network byte order)
+    int32 dstip;        // Destination IP address (network byte order)
+    unsigned char username[8]; // Username (for authentication, if needed)
 };
 
 typedef struct proxy_request Req;
 
-/*
-
-		+----+----+----+----+----+----+----+----+----+----+....+----+
-		| VN | CD | DSTPORT |      DSTIP        | USERID       |NULL|
-		+----+----+----+----+----+----+----+----+----+----+....+----+
- # of byte  1    1      2              4           variable       1
-
-*/
-
-struct proxy_response{
-    int8 vn;
-    int8 cd;
-    int16 _; // they will be ignore
-    int32 __;
+struct proxy_response {
+    int8 vn;            // SOCKS protocol version
+    int8 cd;            // Reply code (90 = request granted)
+    int16 _;            // Reserved (ignore)
+    int32 __;           // Reserved (ignore)
 };
 
-typedef struct  proxy_response Res;
-
-
-
-
-
-
-
+typedef struct proxy_response Res;
